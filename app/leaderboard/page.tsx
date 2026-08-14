@@ -56,6 +56,7 @@ export default function LeaderboardPage() {
   const [entries, setEntries] = useState<Entry[]>([])
   const [claimed, setClaimed] = useState<{ [key: string]: string }>({})
   const [events, setEvents] = useState<Event[]>([])
+  const [monthTop, setMonthTop] = useState<Entry[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
@@ -98,6 +99,29 @@ export default function LeaderboardPage() {
       .map((w: any) => ({ name: w.players.name, pattern: w.pattern_type, at: w.won_at }))
       .reverse()
       .slice(0, 15)
+
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
+    const byMonth: { [key: string]: Entry } = {}
+
+    data?.forEach((w: any) => {
+      if (new Date(w.won_at).getTime() < monthStart) return
+      const name = w.players.name
+      if (!byMonth[name]) {
+        byMonth[name] = { name, patterns: [], points: 0, firstWin: w.won_at }
+      }
+      byMonth[name].patterns.push(w.pattern_type)
+      byMonth[name].points += PATTERN_POINTS[w.pattern_type] || 0
+    })
+
+    const monthSorted = Object.values(byMonth)
+      .sort((a, b) => {
+        if (b.points !== a.points) return b.points - a.points
+        return new Date(a.firstWin).getTime() - new Date(b.firstWin).getTime()
+      })
+      .slice(0, 3)
+
+    setMonthTop(monthSorted)
 
     setEntries(sorted)
     setClaimed(byPattern)
@@ -223,6 +247,45 @@ export default function LeaderboardPage() {
           </div>
 
           <div style={{ flex: '1 1 260px', minWidth: '260px' }}>
+          <h2 style={{
+              fontWeight: 700,
+              fontSize: '20px',
+              color: '#2D2D2D',
+              margin: '0 0 4px 0'
+            }}>Kuu tegija</h2>
+            <p style={{ fontSize: '13px', color: '#5B7795', margin: '0 0 12px 0' }}>
+              {new Date().toLocaleDateString('et-EE', { month: 'long', year: 'numeric' })}
+            </p>
+
+            {monthTop.length === 0 ? (
+              <p style={{ fontSize: '14px', color: '#5B7795', marginBottom: '32px' }}>
+                Sel kuul pole veel ühtegi võitu.
+              </p>
+            ) : (
+              <div style={{ marginBottom: '32px' }}>
+                {monthTop.map((m, i) => (
+                  <div key={m.name} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'baseline',
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    background: i === 0 ? '#E7F4FF' : 'white',
+                    border: i === 0 ? 'none' : '1px solid #E7F4FF',
+                    marginBottom: '6px',
+                    fontSize: '14px',
+                    color: '#2D2D2D'
+                  }}>
+                    <span>
+                      <strong>{i + 1}.</strong> {m.name}
+                    </span>
+                    <span style={{ fontWeight: 700, color: '#0090FF' }}>
+                      {m.points}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
             <h2 style={{
               fontWeight: 700,
               fontSize: '20px',
