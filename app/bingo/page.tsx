@@ -348,10 +348,19 @@ export default function BingoPage() {
         }}>×</button>
       </div>
 
-      <p style={{ fontSize: '14px', lineHeight: 1.6, color: '#2D2D2D', marginTop: 0 }}>
-        Märgi ruut, kui oled selle ülesande täitnud. Keskmine ruut on vaba.
-        Iga mustri saab võita ainult üks kord — esimene, kes selle täidab.
-      </p>
+      <h3 style={{ fontSize: '15px', marginTop: 0, marginBottom: '8px' }}>Märkimine</h3>
+            <p style={{ fontSize: '14px', lineHeight: 1.6, color: '#2D2D2D', margin: 0 }}>
+              Märgi ruut, kui oled selle ülesande täitnud. Keskmine ruut on vaba.
+              Ruudud ei ole broneeritavad — sama ruudu võivad ära märkida kõik.
+            </p>
+
+            <h3 style={{ fontSize: '15px', marginTop: '20px', marginBottom: '8px' }}>Võit</h3>
+            <p style={{ fontSize: '14px', lineHeight: 1.6, color: '#2D2D2D', margin: 0 }}>
+              Punkte annab ainult terve muster: rida, tulp, diagonaal, nurgad või täismäng.
+              Iga mustri saab võita ainult üks kord — esimene, kes selle täidab.
+              Kui muster on juba võidetud, võid selle ruudud ikka ära märkida — need loevad
+              edasi teiste mustrite jaoks.
+            </p>
 
       <h3 style={{ fontSize: '15px', marginTop: '24px', marginBottom: '10px' }}>Punktid</h3>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
