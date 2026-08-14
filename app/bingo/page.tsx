@@ -46,6 +46,7 @@ const PATTERNS = [
   { name: 'Diagonaal 1', points: 4, indices: [0, 6, 12, 18, 24] },
   { name: 'Diagonaal 2', points: 4, indices: [4, 8, 12, 16, 20] },
   { name: 'Nurgad', points: 4, indices: [0, 4, 20, 24] },
+  { name: 'MÜÜGIBINGO', points: 15, indices: [1, 10, 18, 23, 24] },
   { name: 'Täismäng', points: 30, indices: Array.from({ length: 25 }, (_, i) => i) }
 ]
 

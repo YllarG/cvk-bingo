@@ -17,6 +17,7 @@ const PATTERN_POINTS: { [key: string]: number } = {
   'Diagonaal 1': 4,
   'Diagonaal 2': 4,
   'Nurgad': 4,
+  'MÜÜGIBINGO': 15,
   'Täismäng': 30
 }
 
