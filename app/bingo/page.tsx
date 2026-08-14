@@ -410,7 +410,7 @@ export default function BingoPage() {
         </tbody>
       </table>
 
-      <p style={{ fontSize: '12px', color: '#5B7795', marginTop: '20px', marginBottom: 0 }}>
+      <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#5B7795', marginTop: '16px', marginBottom: 0 }}>
               3. rida, N tulp ja diagonaalid läbivad vaba ruutu, seega vajavad neli märgistust.
               Mäng kestab 31.12.2026 või täismängu võiduni.
             </p>
