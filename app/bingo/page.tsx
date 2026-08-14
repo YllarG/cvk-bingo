@@ -411,6 +411,11 @@ export default function BingoPage() {
                   <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
                   <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>4</td>
                 </tr>
+                <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
+                  <td style={{ padding: '8px' }}>MÜÜGIBINGO (salajane)</td>
+                  <td style={{ padding: '8px', textAlign: 'center' }}>5</td>
+                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>15</td>
+                </tr>
                 <tr style={{ background: '#F6FBFF' }}>
                   <td style={{ padding: '8px', fontWeight: 700 }}>Täismäng</td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>25</td>
@@ -422,6 +427,10 @@ export default function BingoPage() {
             <p style={{ ...RULE_TEXT, margin: '16px 0 0 0' }}>
               3. rida, N tulp ja diagonaalid läbivad vaba ruutu, seega vajavad neli märgistust.
               Mäng kestab 31.12.2026 või täismängu võiduni.
+            </p>
+            <p style={{ ...RULE_TEXT, margin: '16px 0 0 0' }}>
+              Kaardil on peidus ka üks salajane viie ruudu muster — <strong>MÜÜGIBINGO</strong>, 15 punkti.
+              Keegi ei tea, millised ruudud need on. Esimene, kes selle kogemata täidab, saab punktid.
             </p>
 
             <p style={{ ...RULE_HEADING, margin: '20px 0 4px 0' }}>Nimi ja kaart</p>
