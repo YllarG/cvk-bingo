@@ -111,6 +111,8 @@ export default function BingoPage() {
         .delete()
         .eq('card_id', cardId)
         .eq('square_number', idx)
+
+      await releaseWins(newMarked)
     } else {
       newMarked.add(idx)
       await supabase
@@ -121,6 +123,34 @@ export default function BingoPage() {
     }
 
     setMarked(newMarked)
+  }
+
+  const releaseWins = async (markedSet: Set<number>) => {
+    const lost: string[] = []
+
+    for (const pattern of PATTERNS) {
+      if (!wins.includes(pattern.name)) continue
+      if (pattern.indices.every(i => markedSet.has(i))) continue
+
+      await supabase
+        .from('wins')
+        .delete()
+        .eq('player_id', playerId)
+        .eq('pattern_type', pattern.name)
+
+      await supabase
+        .from('claimed_patterns')
+        .delete()
+        .eq('pattern_type', pattern.name)
+        .eq('claimed_by_player_id', playerId)
+
+      lost.push(pattern.name)
+    }
+
+    if (lost.length > 0) {
+      setWins(prev => prev.filter(w => !lost.includes(w)))
+      alert(`Muster enam täidetud ei ole: ${lost.join(', ')}. Võit võeti tagasi.`)
+    }
   }
 
   const checkWins = async (markedSet: Set<number>) => {
