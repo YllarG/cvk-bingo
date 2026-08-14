@@ -2,140 +2,134 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
-type LeaderboardEntry = {
-  player_name: string
-  win_count: number
+const PATTERN_POINTS: { [key: string]: number } = {
+  '1. rida': 6,
+  '2. rida': 6,
+  '3. rida': 4,
+  '4. rida': 6,
+  '5. rida': 6,
+  'B tulp': 6,
+  'I tulp': 6,
+  'N tulp': 4,
+  'G tulp': 6,
+  'O tulp': 6,
+  'Diagonaal 1': 4,
+  'Diagonaal 2': 4,
+  'Nurgad': 4,
+  'Täismäng': 30
+}
+
+type Entry = {
+  name: string
   patterns: string[]
-  first_win_time: string
+  points: number
+  firstWin: string
 }
 
 export default function LeaderboardPage() {
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
+  const [entries, setEntries] = useState<Entry[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
-  const router = useRouter()
 
   useEffect(() => {
-    loadLeaderboard()
+    load()
+
     const channel = supabase
-      .channel('leaderboard-updates')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'wins' },
-        () => loadLeaderboard()
-      )
+      .channel('leaderboard')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'wins' }, () => load())
       .subscribe()
 
-    return () => {
-      supabase.removeChannel(channel)
-    }
+    return () => { supabase.removeChannel(channel) }
   }, [])
 
-  const loadLeaderboard = async () => {
-    const { data, error } = await supabase
+  const load = async () => {
+    const { data } = await supabase
       .from('wins')
-      .select('player_id, players!inner(name), pattern_type, won_at')
+      .select('pattern_type, won_at, players!inner(name)')
       .order('won_at', { ascending: true })
 
-    if (error) {
-      console.error(error)
-      return
-    }
+    const byPlayer: { [key: string]: Entry } = {}
 
-    const playerWins: {
-      [key: string]: {
-        name: string
-        patterns: string[]
-        first_win_time: string
+    data?.forEach((w: any) => {
+      const name = w.players.name
+      if (!byPlayer[name]) {
+        byPlayer[name] = { name, patterns: [], points: 0, firstWin: w.won_at }
       }
-    } = {}
-
-    data?.forEach((win: any) => {
-      const playerId = win.player_id
-      const playerName = win.players.name
-
-      if (!playerWins[playerId]) {
-        playerWins[playerId] = {
-          name: playerName,
-          patterns: [],
-          first_win_time: win.won_at
-        }
-      }
-      playerWins[playerId].patterns.push(win.pattern_type)
+      byPlayer[name].patterns.push(w.pattern_type)
+      byPlayer[name].points += PATTERN_POINTS[w.pattern_type] || 0
     })
 
-    const leaderboardData = Object.values(playerWins)
-      .sort((a, b) => b.patterns.length - a.patterns.length)
-      .map(p => ({
-        player_name: p.name,
-        win_count: p.patterns.length,
-        patterns: p.patterns,
-        first_win_time: p.first_win_time
-      }))
+    const sorted = Object.values(byPlayer).sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points
+      return new Date(a.firstWin).getTime() - new Date(b.firstWin).getTime()
+    })
 
-    setLeaderboard(leaderboardData)
+    setEntries(sorted)
     setLoading(false)
   }
 
   return (
-    <div className="min-h-screen bg-white p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900">LEADERBOARD 🏆</h1>
-          <Link href="/bingo">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-              Tagasi mängu
-            </button>
-          </Link>
+    <div style={{ minHeight: '100vh', padding: '20px', fontFamily: 'Arial' }}>
+      <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <h1 style={{
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 800,
+            fontSize: '32px',
+            color: '#2D2D2D',
+            letterSpacing: '-0.5px',
+            margin: 0
+          }}>Edetabel</h1>
+          <a href="/bingo" style={{
+            padding: '8px 16px',
+            background: '#0090FF',
+            color: 'white',
+            textDecoration: 'none',
+            borderRadius: '6px'
+          }}>
+            Tagasi mängu
+          </a>
         </div>
 
         {loading ? (
-          <p className="text-center text-gray-500">Laadime...</p>
-        ) : leaderboard.length === 0 ? (
-          <p className="text-center text-gray-500">Veel võite pole</p>
+          <p style={{ color: '#666' }}>Laadin...</p>
+        ) : entries.length === 0 ? (
+          <p style={{ color: '#666' }}>Veel ühtegi võitu pole.</p>
         ) : (
-          <div className="space-y-4">
-            {leaderboard.map((entry, idx) => (
-              <div
-                key={idx}
-                className={`p-6 rounded-lg border-2 ${
-                  idx === 0
-                    ? 'border-yellow-400 bg-yellow-50'
-                    : idx === 1
-                    ? 'border-gray-400 bg-gray-50'
-                    : idx === 2
-                    ? 'border-orange-400 bg-orange-50'
-                    : 'border-gray-300 bg-gray-50'
-                }`}
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900">
-                      {idx + 1}. {entry.player_name}
-                    </div>
-                    <p className="text-sm text-gray-500">
-                      {new Date(entry.first_win_time).toLocaleString('et-EE')}
-                    </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {entries.map((e, idx) => (
+              <div key={e.name} style={{
+                padding: '16px',
+                border: '1px solid #BAC7D5',
+                borderRadius: '8px',
+                background: idx === 0 ? '#E7F4FF' : 'white'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                    {idx + 1}. {e.name}
                   </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-blue-600">
-                      {entry.win_count}
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#0090FF', lineHeight: 1 }}>
+                      {e.points}
                     </div>
-                    <p className="text-xs text-gray-500">võitu</p>
+                    <div style={{ fontSize: '11px', color: '#5B7795' }}>
+                      punkti · {e.patterns.length} võitu
+                    </div>
                   </div>
                 </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {entry.patterns.map((pattern, pidx) => (
-                    <span
-                      key={pidx}
-                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
-                    >
-                      {pattern}
-                    </span>
+                <div style={{ marginTop: '10px' }}>
+                  {e.patterns.map((p, i) => (
+                    <span key={i} style={{
+                      display: 'inline-block',
+                      padding: '3px 10px',
+                      background: '#E7F4FF',
+                      color: '#2D2D2D',
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      margin: '2px 4px 2px 0'
+                    }}>{p} · {PATTERN_POINTS[p]}p</span>
                   ))}
                 </div>
               </div>
@@ -143,14 +137,13 @@ export default function LeaderboardPage() {
           </div>
         )}
 
-        <div className="mt-12 bg-blue-50 p-6 rounded-lg">
-          <h2 className="font-bold text-gray-900 mb-2">ℹ️ Reglid:</h2>
-          <ul className="text-sm text-gray-700 space-y-1">
-            <li>✅ Esimene kes täidab mustri → võidab selle</li>
-            <li>✅ Teised ei saa samat mustrit enam võita</li>
-            <li>✅ Mäng kestab kuni 31.12.2026</li>
-            <li>✅ Võimalikud mustrid: read, tulbad, diagonaalid, nurgad, täismäng</li>
-          </ul>
+        <div style={{ marginTop: '32px', padding: '16px', background: '#f8f8f8', borderRadius: '8px', fontSize: '13px', color: '#5B7795', lineHeight: 1.6 }}>
+          <strong style={{ color: '#2D2D2D' }}>Punktid</strong><br />
+          Neli märgistust (3. rida, N tulp, diagonaalid, nurgad) — 4 punkti.<br />
+          Viis märgistust (ülejäänud read ja tulbad) — 6 punkti.<br />
+          Täismäng — 30 punkti.<br /><br />
+          Iga mustri saab võita ainult üks kord — esimene, kes selle täidab.
+          Mäng kestab 31.12.2026.
         </div>
       </div>
     </div>
