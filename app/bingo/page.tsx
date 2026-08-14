@@ -53,6 +53,9 @@ const PATTERN_POINTS: { [key: string]: number } = Object.fromEntries(
   PATTERNS.map(p => [p.name, p.points])
 )
 
+const RULE_TEXT = { fontSize: '14px', lineHeight: 1.6, color: '#2D2D2D' }
+const RULE_HEADING = { fontSize: '14px', lineHeight: 1.6, color: '#2D2D2D', fontWeight: 700 }
+
 export default function BingoPage() {
   const [playerName, setPlayerName] = useState('')
   const [cardId, setCardId] = useState('')
@@ -103,7 +106,7 @@ export default function BingoPage() {
     if (idx === 12) return
 
     const newMarked = new Set(marked)
-    
+
     if (newMarked.has(idx)) {
       newMarked.delete(idx)
       await supabase
@@ -118,7 +121,7 @@ export default function BingoPage() {
       await supabase
         .from('marked_squares')
         .insert([{ card_id: cardId, square_number: idx }])
-      
+
       checkWins(newMarked)
     }
 
@@ -172,22 +175,21 @@ export default function BingoPage() {
         .insert([{ player_id: playerId, pattern_type: pattern.name }])
 
       setWins(prev => [...prev, pattern.name])
-      alert(`🎉 Võitsid: ${pattern.name} — ${pattern.points} punkti!`)
+      alert(`Võitsid: ${pattern.name} — ${pattern.points} punkti!`)
     }
   }
 
   if (loading) {
-    return <div style={{ padding: '40px', textAlign: 'center' }}>Laadin...</div>
+    return <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'Montserrat, sans-serif' }}>Laadin...</div>
   }
 
   return (
-    <div style={{ minHeight: '100vh', padding: '20px', fontFamily: 'Arial' }}>
+    <div style={{ minHeight: '100vh', padding: '20px', fontFamily: 'Montserrat, sans-serif' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
-          <h1 style={{
-              fontFamily: 'Montserrat, sans-serif',
+            <h1 style={{
               fontWeight: 800,
               fontSize: '32px',
               color: '#2D2D2D',
@@ -198,6 +200,7 @@ export default function BingoPage() {
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button onClick={() => setShowRules(true)} style={{
+              fontFamily: 'inherit',
               padding: '8px 16px',
               background: 'white',
               color: '#0090FF',
@@ -232,12 +235,14 @@ export default function BingoPage() {
           </div>
         </div>
 
-        <div style={{ 
-          background: '#e7f4ff', 
-          padding: '16px', 
+        <div style={{
+          background: '#E7F4FF',
+          padding: '16px',
           borderRadius: '8px',
           marginBottom: '20px',
-          textAlign: 'center'
+          textAlign: 'center',
+          fontSize: '14px',
+          color: '#2D2D2D'
         }}>
           Märgitud: <strong>{marked.size}/25</strong>
           {'  ·  '}
@@ -250,20 +255,20 @@ export default function BingoPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '4px', marginBottom: '8px' }}>
           {['B', 'I', 'N', 'G', 'O'].map(h => (
-            <div key={h} style={{ 
-              textAlign: 'center', 
-              fontWeight: 'bold', 
+            <div key={h} style={{
+              textAlign: 'center',
+              fontWeight: 700,
               fontSize: '20px',
               color: '#0090FF'
             }}>{h}</div>
           ))}
         </div>
 
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(5, 1fr)', 
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(5, 1fr)',
           gap: '8px',
-          background: '#f8f8f8',
+          background: '#F6FBFF',
           padding: '12px',
           borderRadius: '8px'
         }}>
@@ -273,16 +278,17 @@ export default function BingoPage() {
               onClick={() => toggleSquare(idx)}
               disabled={idx === 12}
               style={{
+                fontFamily: 'inherit',
                 aspectRatio: '1',
                 padding: '8px',
                 fontSize: '11.5px',
                 lineHeight: '1.35',
-                background: idx === 12 ? '#e7f4ff' : marked.has(idx) ? '#0090FF' : 'white',
+                background: idx === 12 ? '#E7F4FF' : marked.has(idx) ? '#0090FF' : 'white',
                 color: idx === 12 ? '#0090FF' : marked.has(idx) ? 'white' : '#2D2D2D',
-                border: idx === 12 ? '2px solid #0090FF' : '1px solid #ddd',
+                border: idx === 12 ? '2px solid #0090FF' : '1px solid #BAC7D5',
                 borderRadius: '4px',
                 cursor: idx === 12 ? 'default' : 'pointer',
-                fontWeight: idx === 12 ? 'bold' : 'normal',
+                fontWeight: idx === 12 ? 700 : 400,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -305,11 +311,11 @@ export default function BingoPage() {
         </div>
 
         {wins.length > 0 && (
-          <div style={{ marginTop: '20px', padding: '16px', background: '#f0f9ff', borderRadius: '8px' }}>
+          <div style={{ marginTop: '20px', padding: '16px', background: '#F6FBFF', borderRadius: '8px', fontSize: '14px', color: '#2D2D2D' }}>
             <strong>Minu võidud:</strong>
             <div style={{ marginTop: '8px' }}>
               {wins.map((w, i) => (
-                <span key={i} style={{ 
+                <span key={i} style={{
                   display: 'inline-block',
                   padding: '4px 12px',
                   background: '#0090FF',
@@ -324,99 +330,101 @@ export default function BingoPage() {
         )}
       </div>
 
-{showRules && (
-  <div
-    onClick={() => setShowRules(false)}
-    style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '20px', zIndex: 100
-    }}
-  >
-    <div
-      onClick={(e) => e.stopPropagation()}
-      style={{
-        background: 'white', borderRadius: '12px', padding: '28px',
-        maxWidth: '480px', width: '100%', maxHeight: '85vh', overflowY: 'auto'
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ margin: 0, fontSize: '22px' }}>Reeglid</h2>
-        <button onClick={() => setShowRules(false)} style={{
-          background: 'none', border: 'none', fontSize: '24px',
-          cursor: 'pointer', color: '#5B7795', lineHeight: 1
-        }}>×</button>
-      </div>
+      {showRules && (
+        <div
+          onClick={() => setShowRules(false)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '20px', zIndex: 100
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'white', borderRadius: '12px', padding: '28px',
+              maxWidth: '480px', width: '100%', maxHeight: '85vh', overflowY: 'auto',
+              fontSize: '14px', lineHeight: 1.6, color: '#2D2D2D'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#2D2D2D', letterSpacing: '-0.3px' }}>Reeglid</h2>
+              <button onClick={() => setShowRules(false)} style={{
+                fontFamily: 'inherit',
+                background: 'none', border: 'none', fontSize: '24px',
+                cursor: 'pointer', color: '#5B7795', lineHeight: 1
+              }}>×</button>
+            </div>
 
-      <h3 style={{ fontSize: '15px', marginTop: 0, marginBottom: '8px' }}>Märkimine</h3>
-            <p style={{ fontSize: '14px', lineHeight: 1.6, color: '#2D2D2D', margin: 0 }}>
+            <p style={{ ...RULE_HEADING, margin: '0 0 4px 0' }}>Märkimine</p>
+            <p style={{ ...RULE_TEXT, margin: 0 }}>
               Märgi ruut, kui oled selle ülesande täitnud. Keskmine ruut on vaba.
               Ruudud ei ole broneeritavad — sama ruudu võivad ära märkida kõik.
             </p>
 
-            <h3 style={{ fontSize: '15px', marginTop: '20px', marginBottom: '8px' }}>Võit</h3>
-            <p style={{ fontSize: '14px', lineHeight: 1.6, color: '#2D2D2D', margin: 0 }}>
+            <p style={{ ...RULE_HEADING, margin: '20px 0 4px 0' }}>Võit</p>
+            <p style={{ ...RULE_TEXT, margin: 0 }}>
               Punkte annab ainult terve muster: rida, tulp, diagonaal, nurgad või täismäng.
               Iga mustri saab võita ainult üks kord — esimene, kes selle täidab.
               Kui muster on juba võidetud, võid selle ruudud ikka ära märkida — need loevad
               edasi teiste mustrite jaoks.
             </p>
 
-      <h3 style={{ fontSize: '15px', marginTop: '24px', marginBottom: '10px' }}>Punktid</h3>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-        <thead>
-          <tr style={{ background: '#E7F4FF' }}>
-            <th style={{ padding: '8px', textAlign: 'left' }}>Muster</th>
-            <th style={{ padding: '8px', textAlign: 'center' }}>Ruute</th>
-            <th style={{ padding: '8px', textAlign: 'right' }}>Punkte</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style={{ borderBottom: '1px solid #eee' }}>
-            <td style={{ padding: '8px' }}>1., 2., 4., 5. rida</td>
-            <td style={{ padding: '8px', textAlign: 'center' }}>5</td>
-            <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>6</td>
-          </tr>
-          <tr style={{ borderBottom: '1px solid #eee' }}>
-            <td style={{ padding: '8px' }}>B, I, G, O tulp</td>
-            <td style={{ padding: '8px', textAlign: 'center' }}>5</td>
-            <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>6</td>
-          </tr>
-          <tr style={{ borderBottom: '1px solid #eee' }}>
-            <td style={{ padding: '8px' }}>3. rida</td>
-            <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
-            <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>4</td>
-          </tr>
-          <tr style={{ borderBottom: '1px solid #eee' }}>
-            <td style={{ padding: '8px' }}>N tulp</td>
-            <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
-            <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>4</td>
-          </tr>
-          <tr style={{ borderBottom: '1px solid #eee' }}>
-            <td style={{ padding: '8px' }}>Diagonaalid</td>
-            <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
-            <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>4</td>
-          </tr>
-          <tr style={{ borderBottom: '1px solid #eee' }}>
-            <td style={{ padding: '8px' }}>Nurgad</td>
-            <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
-            <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>4</td>
-          </tr>
-          <tr style={{ background: '#f8fbff' }}>
-            <td style={{ padding: '8px', fontWeight: 'bold' }}>Täismäng</td>
-            <td style={{ padding: '8px', textAlign: 'center' }}>25</td>
-            <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold', color: '#0090FF' }}>30</td>
-          </tr>
-        </tbody>
-      </table>
+            <p style={{ ...RULE_HEADING, margin: '20px 0 8px 0' }}>Punktid</p>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', color: '#2D2D2D' }}>
+              <thead>
+                <tr style={{ background: '#E7F4FF' }}>
+                  <th style={{ padding: '8px', textAlign: 'left', fontWeight: 600 }}>Muster</th>
+                  <th style={{ padding: '8px', textAlign: 'center', fontWeight: 600 }}>Ruute</th>
+                  <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600 }}>Punkte</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
+                  <td style={{ padding: '8px' }}>1., 2., 4., 5. rida</td>
+                  <td style={{ padding: '8px', textAlign: 'center' }}>5</td>
+                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>6</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
+                  <td style={{ padding: '8px' }}>B, I, G, O tulp</td>
+                  <td style={{ padding: '8px', textAlign: 'center' }}>5</td>
+                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>6</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
+                  <td style={{ padding: '8px' }}>3. rida</td>
+                  <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
+                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>4</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
+                  <td style={{ padding: '8px' }}>N tulp</td>
+                  <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
+                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>4</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
+                  <td style={{ padding: '8px' }}>Diagonaalid</td>
+                  <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
+                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>4</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
+                  <td style={{ padding: '8px' }}>Nurgad</td>
+                  <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
+                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>4</td>
+                </tr>
+                <tr style={{ background: '#F6FBFF' }}>
+                  <td style={{ padding: '8px', fontWeight: 700 }}>Täismäng</td>
+                  <td style={{ padding: '8px', textAlign: 'center' }}>25</td>
+                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, color: '#0090FF' }}>30</td>
+                </tr>
+              </tbody>
+            </table>
 
-      <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#5B7795', marginTop: '16px', marginBottom: 0 }}>
+            <p style={{ ...RULE_TEXT, margin: '16px 0 0 0' }}>
               3. rida, N tulp ja diagonaalid läbivad vaba ruutu, seega vajavad neli märgistust.
               Mäng kestab 31.12.2026 või täismängu võiduni.
             </p>
 
-            <h3 style={{ fontSize: '15px', marginTop: '24px', marginBottom: '8px' }}>Nimi ja kaart</h3>
-            <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#5B7795', margin: 0 }}>
+            <p style={{ ...RULE_HEADING, margin: '20px 0 4px 0' }}>Nimi ja kaart</p>
+            <p style={{ ...RULE_TEXT, margin: 0 }}>
               Sisesta oma pärisnimi, et edetabelis oleks selge, kes on kes.
               Kaart on seotud selle seadme ja brauseriga — mängi kogu aeg samast kohast.
               Kui alustad uue nimega või teisest seadmest, algab uus kaart nullist.
@@ -430,11 +438,12 @@ export default function BingoPage() {
                 }
               }}
               style={{
-                marginTop: '20px',
+                fontFamily: 'inherit',
+                marginTop: '24px',
                 background: 'none',
                 border: 'none',
-                color: '#9CA3AF',
-                fontSize: '12px',
+                color: '#5B7795',
+                fontSize: '14px',
                 cursor: 'pointer',
                 padding: 0,
                 textDecoration: 'underline'
@@ -444,7 +453,7 @@ export default function BingoPage() {
             </button>
           </div>
         </div>
-)}
-</div>
-)
+      )}
+    </div>
+  )
 }
