@@ -86,7 +86,7 @@ export default function PlayerPage() {
         <form onSubmit={handleStart} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <input
             type="text"
-            placeholder="Sisesta oma nimi"
+            placeholder="Sisesta oma pärisnimi"
             value={name}
             onChange={(e) => setName(e.target.value)}
             style={{
@@ -97,6 +97,9 @@ export default function PlayerPage() {
             }}
             required
           />
+          <p style={{ fontSize: '12px', color: '#5B7795', margin: '-8px 0 0 0', lineHeight: 1.5 }}>
+            Kaart jääb seotuks selle seadme ja brauseriga.
+          </p>
           {error && <p style={{ color: '#c00', fontSize: '14px' }}>{error}</p>}
           <button
             type="submit"

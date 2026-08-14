@@ -406,6 +406,13 @@ export default function BingoPage() {
               Mäng kestab 31.12.2026 või täismängu võiduni.
             </p>
 
+            <h3 style={{ fontSize: '15px', marginTop: '24px', marginBottom: '8px' }}>Nimi ja kaart</h3>
+            <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#5B7795', margin: 0 }}>
+              Sisesta oma pärisnimi, et edetabelis oleks selge, kes on kes.
+              Kaart on seotud selle seadme ja brauseriga — mängi kogu aeg samast kohast.
+              Kui alustad uue nimega või teisest seadmest, algab uus kaart nullist.
+            </p>
+
             <button
               onClick={() => {
                 if (confirm('Alustada uue nimega? Praegune kaart jääb edetabelisse alles, aga sina alustad nullist.')) {
