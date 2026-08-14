@@ -65,6 +65,8 @@ export default function BingoPage() {
   const [wins, setWins] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [showRules, setShowRules] = useState(false)
+  const [counts, setCounts] = useState<{ [key: number]: number }>({})
+  const [taken, setTaken] = useState<string[]>([])
   const router = useRouter()
   const supabase = createClient()
 
@@ -82,8 +84,34 @@ export default function BingoPage() {
     setPlayerName(pname || '')
     setCardId(cid)
     loadData(cid, pid)
-  }, [])
+    loadCounts()
+    loadTaken()
 
+    const channel = supabase
+      .channel('square-counts')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'marked_squares' }, () => loadCounts())
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [])
+  const loadTaken = async () => {
+    const { data } = await supabase
+      .from('claimed_patterns')
+      .select('pattern_type')
+
+    setTaken(data?.map((c: any) => c.pattern_type) || [])
+  }
+  const loadCounts = async () => {
+    const { data } = await supabase
+      .from('marked_squares')
+      .select('square_number')
+
+    const tally: { [key: number]: number } = {}
+    data?.forEach((m: any) => {
+      tally[m.square_number] = (tally[m.square_number] || 0) + 1
+    })
+    setCounts(tally)
+  }
   const loadData = async (cid: string, pid: string) => {
     const { data: markedData } = await supabase
       .from('marked_squares')
@@ -180,6 +208,20 @@ export default function BingoPage() {
     }
   }
 
+  const closest = (() => {
+    let best: { name: string; missing: number; points: number } | null = null
+
+    for (const p of PATTERNS) {
+      if (taken.includes(p.name)) continue
+      const missing = p.indices.filter(i => !marked.has(i)).length
+      if (missing === 0 || missing > 2) continue
+      if (!best || missing < best.missing || (missing === best.missing && p.points > best.points)) {
+        best = { name: p.name, missing, points: p.points }
+      }
+    }
+
+    return best
+  })()
   if (loading) {
     return <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'Montserrat, sans-serif' }}>Laadin...</div>
   }
@@ -253,6 +295,20 @@ export default function BingoPage() {
             {wins.reduce((sum, w) => sum + (PATTERN_POINTS[w] || 0), 0)}
           </strong>
         </div>
+        {closest && (
+          <div style={{
+            background: 'white',
+            border: '1px solid #0090FF',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            textAlign: 'center',
+            fontSize: '14px',
+            color: '#2D2D2D'
+          }}>
+            Lähim muster: <strong>{closest.name}</strong> — puudu {closest.missing === 1 ? 'üks ruut' : `${closest.missing} ruutu`} ({closest.points} punkti)
+          </div>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '4px', marginBottom: '8px' }}>
           {['B', 'I', 'N', 'G', 'O'].map(h => (
@@ -293,7 +349,8 @@ export default function BingoPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                textAlign: 'center'
+                textAlign: 'center',
+                position: 'relative'
               }}
             >
               {idx === 12 ? (
@@ -306,7 +363,21 @@ export default function BingoPage() {
                   <path d="M107.186 23.5018H112.821L104.456 13.7123L112.477 5.22105H106.94L99.9369 12.9614V0H95.7684V23.5018H99.9369V18.5053L101.684 16.6526L107.186 23.5018Z" fill="#2D2D2D"/>
                   <path d="M142.421 12.6666L139.032 12.049C137.782 11.8245 136.996 11.1157 136.996 10.1473C136.996 9.03149 138.218 8.11921 140.049 8.11921C142.449 8.11921 143.656 9.22798 143.874 10.421H148.021C147.888 8.14728 145.86 4.72974 140.211 4.72974C136.014 4.72974 132.779 7.41044 132.779 10.5824C132.779 13.0806 134.646 15.1648 138.218 15.8736L141.516 16.5332C143.137 16.828 143.881 17.5789 143.881 18.5473C143.881 19.6631 142.695 20.5753 140.702 20.5753C138.295 20.5753 136.758 19.4806 136.477 17.8034H132.232C132.232 20.421 134.723 24.0069 140.582 24.0069C145.733 24.0069 148.225 20.9473 148.225 18.1894C148.239 15.5017 146.512 13.4455 142.421 12.6666Z" fill="#2D2D2D"/>
                 </svg>
-              ) : text}
+              ) : (
+                <>
+                  {text}
+                  {counts[idx] > 0 && (
+                    <span style={{
+                      position: 'absolute',
+                      bottom: '4px',
+                      right: '6px',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      color: marked.has(idx) ? 'rgba(255,255,255,0.7)' : '#5B7795'
+                    }}>{counts[idx]}</span>
+                  )}
+                </>
+              )}
             </button>
           ))}
         </div>
