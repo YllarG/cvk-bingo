@@ -25,7 +25,7 @@ const BINGO_SQUARES = [
   'Müüsin 50 teenust allahindluseta + klient valis kõrgema hinnaga pakkumise',
   'Parandasin oma müügiargumente + küsisin kliendi tagasisidet enda tööle',
   'Küsisin 10 kliendilt, miks nad meid valisid',
-  'Müüsin sisuturundusartikli + bänneri võimendamiseks',
+  'Müüsin sisuturundusartikli + bänneri artikli võimendamiseks',
   'Lahendasin edukalt 5 vastuväidet "CV.ee on odavam"',
   'Ületasin kahel kuul müügieesmärgi',
   'Jagasin toimivat müügivõtet + kutsusin kohvipausile kolleegi kellega räägin vähem',
@@ -282,7 +282,7 @@ export default function BingoPage() {
                 fontFamily: 'inherit',
                 aspectRatio: '1',
                 padding: '8px',
-                fontSize: '11.5px',
+                fontSize: '12.5px',
                 lineHeight: '1.35',
                 background: idx === 12 ? '#E7F4FF' : marked.has(idx) ? '#0090FF' : 'white',
                 color: idx === 12 ? '#0090FF' : marked.has(idx) ? 'white' : '#2D2D2D',
@@ -344,7 +344,7 @@ export default function BingoPage() {
             onClick={(e) => e.stopPropagation()}
             style={{
               background: 'white', borderRadius: '12px', padding: '28px',
-              maxWidth: '480px', width: '100%', maxHeight: '85vh', overflowY: 'auto',
+              maxWidth: '620px', width: '100%', maxHeight: '85vh', overflowY: 'auto',
               fontSize: '14px', lineHeight: 1.6, color: '#2D2D2D'
             }}
           >
@@ -362,6 +362,13 @@ export default function BingoPage() {
               Märgi ruut, kui oled selle ülesande täitnud. Keskmine ruut on vaba.
               Ruudud ei ole broneeritavad — sama ruudu võivad ära märkida kõik.
             </p>
+            <p style={{ ...RULE_TEXT, margin: '12px 0 0 0' }}>
+              Kui ruudus on kaks tegevust, tuleb märkimiseks mõlemad ära teha.
+            </p>
+            <p style={{ ...RULE_TEXT, margin: '12px 0 0 0' }}>
+              Ruudu eesmärki ei pea täitma ühe tehingu või ühe arvega — see on
+              erinevate tegevuste summa aja jooksul.
+            </p>
 
             <p style={{ ...RULE_HEADING, margin: '20px 0 4px 0' }}>Võit</p>
             <p style={{ ...RULE_TEXT, margin: 0 }}>
@@ -377,49 +384,49 @@ export default function BingoPage() {
                 <tr style={{ background: '#E7F4FF' }}>
                   <th style={{ padding: '8px', textAlign: 'left', fontWeight: 600 }}>Muster</th>
                   <th style={{ padding: '8px', textAlign: 'center', fontWeight: 600 }}>Ruute</th>
-                  <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600 }}>Punkte</th>
+                  <th style={{ padding: '8px', textAlign: 'center', fontWeight: 600 }}>Punkte</th>
                 </tr>
               </thead>
               <tbody>
                 <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
                   <td style={{ padding: '8px' }}>1., 2., 4., 5. rida</td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>5</td>
-                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>6</td>
+                  <td style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>6</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
                   <td style={{ padding: '8px' }}>B, I, G, O tulp</td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>5</td>
-                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>6</td>
+                  <td style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>6</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
                   <td style={{ padding: '8px' }}>3. rida</td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
-                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>4</td>
+                  <td style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>4</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
                   <td style={{ padding: '8px' }}>N tulp</td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
-                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>4</td>
+                  <td style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>4</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
                   <td style={{ padding: '8px' }}>Diagonaalid</td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
-                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>4</td>
+                  <td style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>4</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
                   <td style={{ padding: '8px' }}>Nurgad</td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>4</td>
-                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>4</td>
+                  <td style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>4</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
                   <td style={{ padding: '8px' }}>MÜÜGIBINGO (salajane)</td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>5</td>
-                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700 }}>15</td>
+                  <td style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>15</td>
                 </tr>
-                <tr style={{ background: '#F6FBFF' }}>
-                  <td style={{ padding: '8px', fontWeight: 700 }}>Täismäng</td>
+                <tr style={{ borderBottom: '1px solid #E7F4FF' }}>
+                  <td style={{ padding: '8px' }}>Täismäng</td>
                   <td style={{ padding: '8px', textAlign: 'center' }}>25</td>
-                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, color: '#0090FF' }}>30</td>
+                  <td style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>30</td>
                 </tr>
               </tbody>
             </table>
