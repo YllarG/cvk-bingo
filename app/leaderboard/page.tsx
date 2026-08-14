@@ -137,13 +137,11 @@ export default function LeaderboardPage() {
           </div>
         )}
 
-        <div style={{ marginTop: '32px', padding: '16px', background: '#f8f8f8', borderRadius: '8px', fontSize: '13px', color: '#5B7795', lineHeight: 1.6 }}>
-          <strong style={{ color: '#2D2D2D' }}>Punktid</strong><br />
-          Neli märgistust (3. rida, N tulp, diagonaalid, nurgad) — 4 punkti.<br />
-          Viis märgistust (ülejäänud read ja tulbad) — 6 punkti.<br />
-          Täismäng — 30 punkti.<br /><br />
-          Iga mustri saab võita ainult üks kord — esimene, kes selle täidab.
-          Mäng kestab 31.12.2026.
+<div style={{ marginTop: '32px', padding: '16px', background: '#F6FBFF', borderRadius: '8px', fontSize: '14px', color: '#2D2D2D', lineHeight: 1.6 }}>
+          Punkte annab ainult terve muster. Iga mustri saab võita ainult üks kord — esimene, kes selle täidab.
+          Mäng kestab 31.12.2026 või täismängu võiduni.
+          {' '}
+          <a href="/bingo" style={{ color: '#0090FF' }}>Täpsed reeglid ja punktitabel leiad mängulehelt.</a>
         </div>
       </div>
     </div>
