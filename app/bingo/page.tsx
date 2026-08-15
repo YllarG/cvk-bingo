@@ -617,14 +617,16 @@ export default function BingoPage() {
 
             <p style={{ ...RULE_TEXT, margin: '16px 0 0 0' }}>
               3. rida, N tulp ja diagonaalid läbivad vaba ruutu, seega vajavad neli märgistust.
-              <p style={{ ...RULE_HEADING, margin: '20px 0 4px 0' }}>Nädala ruut</p>
+            </p>
+
+            <p style={{ ...RULE_HEADING, margin: '20px 0 4px 0' }}>Nädala ruut</p>
             <p style={{ ...RULE_TEXT, margin: 0 }}>
               Igal esmaspäeval valib süsteem juhusliku ruudu ja märgib selle kaardil sinise raamiga.
               Esimene, kes selle nädala jooksul ära märgib, saab <strong>2 boonuspunkti</strong>.
               Kui oled ruudu juba varem märkinud, sel nädalal punkte ei tule — nii saavad ka
               teised võimaluse.
             </p>
-            </p>
+
             <p style={{ ...RULE_TEXT, margin: '16px 0 0 0' }}>
               Kaardil on peidus ka üks salajane viie ruudu muster — <strong>MÜÜGIBINGO</strong>, 15 punkti.
               Keegi ei tea, millised ruudud need on. Esimene, kes selle kogemata täidab, saab punktid.
