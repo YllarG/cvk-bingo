@@ -21,11 +21,57 @@ const PATTERN_POINTS: { [key: string]: number } = {
   'Täismäng': 30
 }
 
-const ALL_PATTERNS = [
-  '1. rida', '2. rida', '3. rida', '4. rida', '5. rida',
-  'B tulp', 'I tulp', 'N tulp', 'G tulp', 'O tulp',
-  'Diagonaal 1', 'Diagonaal 2', 'Nurgad', 'MÜÜGIBINGO', 'Täismäng'
-]
+const PATTERN_SHAPES: { [key: string]: number[] } = {
+  '1. rida': [0, 1, 2, 3, 4],
+  '2. rida': [5, 6, 7, 8, 9],
+  '3. rida': [10, 11, 12, 13, 14],
+  '4. rida': [15, 16, 17, 18, 19],
+  '5. rida': [20, 21, 22, 23, 24],
+  'B tulp': [0, 5, 10, 15, 20],
+  'I tulp': [1, 6, 11, 16, 21],
+  'N tulp': [2, 7, 12, 17, 22],
+  'G tulp': [3, 8, 13, 18, 23],
+  'O tulp': [4, 9, 14, 19, 24],
+  'Diagonaal 1': [0, 6, 12, 18, 24],
+  'Diagonaal 2': [4, 8, 12, 16, 20],
+  'Nurgad': [0, 4, 20, 24],
+  'MÜÜGIBINGO': [1, 10, 18, 23, 24],
+  'Täismäng': Array.from({ length: 25 }, (_, i) => i)
+}
+
+const ALL_PATTERNS = Object.keys(PATTERN_SHAPES)
+
+function MiniCard({ pattern, taken, hidden }: { pattern: string; taken: boolean; hidden?: boolean }) {
+  const cells = PATTERN_SHAPES[pattern] || []
+  const active = taken ? '#BAC7D5' : '#0090FF'
+
+  if (hidden) {
+    return (
+      <div style={{
+        width: '52px', height: '52px', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', border: '1px solid #E7F4FF', borderRadius: '4px',
+        color: taken ? '#BAC7D5' : '#0090FF', fontWeight: 700, fontSize: '18px'
+      }}>?</div>
+    )
+  }
+
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(5, 1fr)',
+      gap: '2px',
+      width: '52px'
+    }}>
+      {Array.from({ length: 25 }, (_, i) => (
+        <div key={i} style={{
+          aspectRatio: '1',
+          borderRadius: '1px',
+          background: cells.includes(i) ? active : '#F0F4F8'
+        }} />
+      ))}
+    </div>
+  )
+}
 
 type Entry = {
   name: string
@@ -220,6 +266,7 @@ export default function LeaderboardPage() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', color: '#2D2D2D' }}>
               <thead>
                 <tr style={{ background: '#E7F4FF' }}>
+                  <th style={{ padding: '8px', width: '60px' }}></th>
                   <th style={{ padding: '8px', textAlign: 'left', fontWeight: 600 }}>Muster</th>
                   <th style={{ padding: '8px', textAlign: 'center', fontWeight: 600 }}>Punkte</th>
                   <th style={{ padding: '8px', textAlign: 'left', fontWeight: 600 }}>Võitja</th>
@@ -230,6 +277,13 @@ export default function LeaderboardPage() {
                   const winner = claimed[p]
                   return (
                     <tr key={p} style={{ borderBottom: '1px solid #E7F4FF' }}>
+                      <td style={{ padding: '8px' }}>
+                        <MiniCard
+                          pattern={p}
+                          taken={!!winner}
+                          hidden={p === 'MÜÜGIBINGO' && !winner}
+                        />
+                      </td>
                       <td style={{ padding: '8px', color: winner ? '#9CA3AF' : '#2D2D2D' }}>
                         {p === 'MÜÜGIBINGO' ? 'MÜÜGIBINGO (salajane)' : p}
                       </td>
