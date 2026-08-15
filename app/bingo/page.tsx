@@ -54,6 +54,15 @@ const PATTERN_POINTS: { [key: string]: number } = Object.fromEntries(
   PATTERNS.map(p => [p.name, p.points])
 )
 
+const WEEKLY_POINTS = 2
+
+function mondayOf(d: Date) {
+  const day = d.getDay()
+  const diff = day === 0 ? -6 : 1 - day
+  const m = new Date(d)
+  m.setDate(d.getDate() + diff)
+  return `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}-${String(m.getDate()).padStart(2, '0')}`
+}
 const RULE_TEXT = { fontSize: '14px', lineHeight: 1.6, color: '#2D2D2D' }
 const RULE_HEADING = { fontSize: '14px', lineHeight: 1.6, color: '#2D2D2D', fontWeight: 700 }
 
@@ -67,6 +76,8 @@ export default function BingoPage() {
   const [showRules, setShowRules] = useState(false)
   const [counts, setCounts] = useState<{ [key: number]: number }>({})
   const [taken, setTaken] = useState<string[]>([])
+  const [weekly, setWeekly] = useState<{ square: number; winner: string | null } | null>(null)
+  const [weeklyWins, setWeeklyWins] = useState(0)
   const router = useRouter()
   const supabase = createClient()
 
@@ -86,6 +97,7 @@ export default function BingoPage() {
     loadData(cid, pid)
     loadCounts()
     loadTaken()
+    loadWeekly(pid)
 
     const channel = supabase
       .channel('square-counts')
@@ -94,6 +106,77 @@ export default function BingoPage() {
 
     return () => { supabase.removeChannel(channel) }
   }, [])
+  const claimWeekly = async (idx: number) => {
+    if (!weekly || weekly.square !== idx || weekly.winner) return
+
+    const week = mondayOf(new Date())
+
+    const { error } = await supabase
+      .from('weekly_square')
+      .update({ winner_player_id: playerId, won_at: new Date().toISOString() })
+      .eq('week_start', week)
+      .is('winner_player_id', null)
+
+    if (error) return
+
+    const { data: check } = await supabase
+      .from('weekly_square')
+      .select('winner_player_id')
+      .eq('week_start', week)
+      .maybeSingle()
+
+    if (check?.winner_player_id === playerId) {
+      setWeekly({ square: idx, winner: playerName })
+      setWeeklyWins(prev => prev + 1)
+      alert(`Nädala ruut! ${WEEKLY_POINTS} boonuspunkti.`)
+    }
+  }
+  const loadWeekly = async (pid?: string) => {
+    const week = mondayOf(new Date())
+    const me = pid || playerId
+
+    const { data: mine } = await supabase
+      .from('weekly_square')
+      .select('id')
+      .eq('winner_player_id', me)
+
+    setWeeklyWins(mine?.length || 0)
+
+    const { data: existing } = await supabase
+      .from('weekly_square')
+      .select('square_number, winner_player_id, players:winner_player_id(name)')
+      .eq('week_start', week)
+      .maybeSingle()
+
+    if (existing) {
+      setWeekly({
+        square: existing.square_number,
+        winner: (existing.players as any)?.name || null
+      })
+      return
+    }
+
+    // Uus nädal – vali juhuslik ruut (mitte keskmine)
+    let pick = 12
+    while (pick === 12) pick = Math.floor(Math.random() * 25)
+
+    await supabase
+      .from('weekly_square')
+      .insert([{ week_start: week, square_number: pick }])
+
+    const { data: fresh } = await supabase
+      .from('weekly_square')
+      .select('square_number, winner_player_id, players:winner_player_id(name)')
+      .eq('week_start', week)
+      .maybeSingle()
+
+    if (fresh) {
+      setWeekly({
+        square: fresh.square_number,
+        winner: (fresh.players as any)?.name || null
+      })
+    }
+  }
   const loadTaken = async () => {
     const { data } = await supabase
       .from('claimed_patterns')
@@ -151,6 +234,7 @@ export default function BingoPage() {
         .from('marked_squares')
         .insert([{ card_id: cardId, square_number: idx }])
 
+      await claimWeekly(idx)
       checkWins(newMarked)
     }
 
@@ -292,9 +376,28 @@ export default function BingoPage() {
           Võite: <strong>{wins.length}</strong>
           {'  ·  '}
           Punkte: <strong style={{ color: '#0090FF' }}>
-            {wins.reduce((sum, w) => sum + (PATTERN_POINTS[w] || 0), 0)}
+          {wins.reduce((sum, w) => sum + (PATTERN_POINTS[w] || 0), 0)
+              + weeklyWins * WEEKLY_POINTS}
           </strong>
         </div>
+        {weekly && (
+          <div style={{
+            background: weekly.winner ? '#F6FBFF' : '#E7F4FF',
+            border: weekly.winner ? '1px solid #BAC7D5' : '2px solid #0090FF',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            textAlign: 'center',
+            fontSize: '14px',
+            color: '#2D2D2D'
+          }}>
+            {weekly.winner ? (
+              <>Nädala ruudu võttis <strong>{weekly.winner}</strong> — {WEEKLY_POINTS} boonuspunkti.</>
+            ) : (
+              <>Nädala ruut on kaardil märgitud — esimene, kes selle täidab, saab {WEEKLY_POINTS} boonuspunkti.</>
+            )}
+          </div>
+        )}
         {closest && (
           <div style={{
             background: 'white',
@@ -350,7 +453,10 @@ export default function BingoPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 textAlign: 'center',
-                position: 'relative'
+                position: 'relative',
+                boxShadow: weekly && weekly.square === idx && !weekly.winner
+                  ? 'inset 0 0 0 3px #0090FF'
+                  : 'none'
               }}
             >
               {idx === 12 ? (
@@ -504,6 +610,13 @@ export default function BingoPage() {
 
             <p style={{ ...RULE_TEXT, margin: '16px 0 0 0' }}>
               3. rida, N tulp ja diagonaalid läbivad vaba ruutu, seega vajavad neli märgistust.
+              <p style={{ ...RULE_HEADING, margin: '20px 0 4px 0' }}>Nädala ruut</p>
+            <p style={{ ...RULE_TEXT, margin: 0 }}>
+              Igal esmaspäeval valib süsteem juhusliku ruudu ja märgib selle kaardil sinise raamiga.
+              Esimene, kes selle nädala jooksul ära märgib, saab <strong>2 boonuspunkti</strong>.
+              Kui oled ruudu juba varem märkinud, sel nädalal punkte ei tule — nii saavad ka
+              teised võimaluse.
+            </p>
             </p>
             <p style={{ ...RULE_TEXT, margin: '16px 0 0 0' }}>
               Kaardil on peidus ka üks salajane viie ruudu muster — <strong>MÜÜGIBINGO</strong>, 15 punkti.

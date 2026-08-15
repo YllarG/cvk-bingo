@@ -73,11 +73,13 @@ function MiniCard({ pattern, taken, hidden }: { pattern: string; taken: boolean;
   )
 }
 
+const WEEKLY_POINTS = 2
 type Entry = {
   name: string
   patterns: string[]
   points: number
   firstWin: string
+  weekly: number
 }
 
 type Event = {
@@ -123,27 +125,58 @@ export default function LeaderboardPage() {
       .select('pattern_type, won_at, players!inner(name)')
       .order('won_at', { ascending: true })
 
-    const byPlayer: { [key: string]: Entry } = {}
+      const { data: weeklyData } = await supabase
+      .from('weekly_square')
+      .select('players:winner_player_id(name)')
+      .not('winner_player_id', 'is', null)
+
+    const weeklyByName: { [key: string]: number } = {}
+    weeklyData?.forEach((w: any) => {
+      const n = w.players?.name
+      if (n) weeklyByName[n] = (weeklyByName[n] || 0) + 1
+    })
+      const byPlayer: { [key: string]: Entry } = {}
     const byPattern: { [key: string]: string } = {}
 
     data?.forEach((w: any) => {
       const name = w.players.name
       if (!byPlayer[name]) {
-        byPlayer[name] = { name, patterns: [], points: 0, firstWin: w.won_at }
+        byPlayer[name] = { name, patterns: [], points: 0, firstWin: w.won_at, weekly: 0 }
       }
       byPlayer[name].patterns.push(w.pattern_type)
       byPlayer[name].points += PATTERN_POINTS[w.pattern_type] || 0
       byPattern[w.pattern_type] = name
     })
 
+    Object.keys(weeklyByName).forEach(name => {
+      if (!byPlayer[name]) return
+      byPlayer[name].points += weeklyByName[name] * WEEKLY_POINTS
+      byPlayer[name].weekly = weeklyByName[name]
+    })
     const sorted = Object.values(byPlayer).sort((a, b) => {
       if (b.points !== a.points) return b.points - a.points
       return new Date(a.firstWin).getTime() - new Date(b.firstWin).getTime()
     })
 
-    const recent: Event[] = (data || [])
-      .map((w: any) => ({ name: w.players.name, pattern: w.pattern_type, at: w.won_at }))
-      .reverse()
+    const { data: weeklyEvents } = await supabase
+      .from('weekly_square')
+      .select('won_at, players:winner_player_id(name)')
+      .not('winner_player_id', 'is', null)
+
+    const recent: Event[] = [
+      ...(data || []).map((w: any) => ({
+        name: w.players.name,
+        pattern: w.pattern_type,
+        at: w.won_at
+      })),
+      ...(weeklyEvents || []).map((w: any) => ({
+        name: w.players?.name || '',
+        pattern: 'Nädala ruut',
+        at: w.won_at
+      }))
+    ]
+      .filter(e => e.name && e.at)
+      .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
       .slice(0, 15)
 
     const now = new Date()
@@ -154,7 +187,7 @@ export default function LeaderboardPage() {
       if (new Date(w.won_at).getTime() < monthStart) return
       const name = w.players.name
       if (!byMonth[name]) {
-        byMonth[name] = { name, patterns: [], points: 0, firstWin: w.won_at }
+        byMonth[name] = { name, patterns: [], points: 0, firstWin: w.won_at, weekly: 0 }
       }
       byMonth[name].patterns.push(w.pattern_type)
       byMonth[name].points += PATTERN_POINTS[w.pattern_type] || 0
@@ -246,6 +279,17 @@ export default function LeaderboardPage() {
                           margin: '2px 4px 2px 0'
                         }}>{p} · {PATTERN_POINTS[p]}p</span>
                       ))}
+                      {e.weekly > 0 && (
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '3px 10px',
+                          background: '#0090FF',
+                          color: 'white',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          margin: '2px 4px 2px 0'
+                        }}>Nädala ruut × {e.weekly} · {e.weekly * WEEKLY_POINTS}p</span>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -359,9 +403,14 @@ export default function LeaderboardPage() {
                     color: '#2D2D2D',
                     lineHeight: 1.5
                   }}>
-                    <strong>{e.name}</strong> võttis mustri {e.pattern}
+                    <strong>{e.name}</strong> võitis{' '}
+                    {e.pattern === 'Nädala ruut' ? (
+                      <strong style={{ color: '#0090FF' }}>nädala ruudu</strong>
+                    ) : (
+                      <>mustri {e.pattern}</>
+                    )}
                     <div style={{ fontSize: '12px', color: '#5B7795', marginTop: '2px' }}>
-                      {timeAgo(e.at)} · {PATTERN_POINTS[e.pattern]} punkti
+                    {timeAgo(e.at)} · {PATTERN_POINTS[e.pattern] || WEEKLY_POINTS} punkti
                     </div>
                   </div>
                 ))}
