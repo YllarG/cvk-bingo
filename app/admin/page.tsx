@@ -346,8 +346,23 @@ export default function AdminPage() {
         ) : (
           months.map(m => (
             <div key={m.key} style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '15px', fontWeight: 700, color: '#2D2D2D', marginBottom: '6px' }}>
-                {m.label}
+              <div style={{
+                display: 'flex', alignItems: 'baseline', gap: '10px',
+                marginBottom: '6px', flexWrap: 'wrap'
+              }}>
+                <span style={{ fontSize: '15px', fontWeight: 700, color: '#2D2D2D' }}>
+                  {m.label}
+                </span>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#0090FF' }}>
+                  {m.key === `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
+                    ? 'KÄIB'
+                    : 'LÕPPENUD'}
+                </span>
+                <span style={{ fontSize: '13px', color: '#5B7795', marginLeft: 'auto' }}>
+                  Väljamakse: <strong style={{ color: '#2D2D2D' }}>
+                    {m.top.reduce((s, t) => s + t.prize, 0)} €
+                  </strong>
+                </span>
               </div>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', color: '#2D2D2D' }}>
                 <thead>
