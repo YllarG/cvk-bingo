@@ -633,27 +633,6 @@ export default function BingoPage() {
               Kui alustad uue nimega või teisest seadmest, on see uus mängija ja algab uus kaart nullist.
             </p>
 
-            <button
-              onClick={() => {
-                if (confirm('Alustada uue nimega? Praegune kaart jääb edetabelisse alles, aga sina alustad nullist.')) {
-                  localStorage.clear()
-                  router.push('/player')
-                }
-              }}
-              style={{
-                fontFamily: 'inherit',
-                marginTop: '24px',
-                background: 'none',
-                border: 'none',
-                color: '#5B7795',
-                fontSize: '14px',
-                cursor: 'pointer',
-                padding: 0,
-                textDecoration: 'underline'
-              }}
-            >
-              Alusta uue nimega
-            </button>
           </div>
         </div>
       )}
