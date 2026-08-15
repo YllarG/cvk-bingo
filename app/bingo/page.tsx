@@ -504,18 +504,20 @@ export default function BingoPage() {
 
             <p style={{ ...RULE_TEXT, margin: '16px 0 0 0' }}>
               3. rida, N tulp ja diagonaalid läbivad vaba ruutu, seega vajavad neli märgistust.
-              Mäng kestab 31.12.2026 või täismängu võiduni.
             </p>
             <p style={{ ...RULE_TEXT, margin: '16px 0 0 0' }}>
               Kaardil on peidus ka üks salajane viie ruudu muster — <strong>MÜÜGIBINGO</strong>, 15 punkti.
               Keegi ei tea, millised ruudud need on. Esimene, kes selle kogemata täidab, saab punktid.
             </p>
+            <p style={{ ...RULE_TEXT, margin: '16px 0 0 0' }}>
+              Mäng kestab kuni <strong>31.12.2026</strong> või täismängu võiduni.
+            </p>
 
             <p style={{ ...RULE_HEADING, margin: '20px 0 4px 0' }}>Nimi ja kaart</p>
             <p style={{ ...RULE_TEXT, margin: 0 }}>
               Sisesta oma pärisnimi, et edetabelis oleks selge, kes on kes.
-              Kaart on seotud selle seadme ja brauseriga — mängi kogu aeg samast kohast.
-              Kui alustad uue nimega või teisest seadmest, algab uus kaart nullist.
+              Kaart on seotud selle seadme ja brauseriga — mängi kogu aeg samast seadmest.
+              Kui alustad uue nimega või teisest seadmest, on see uus mängija ja algab uus kaart nullist.
             </p>
 
             <button
