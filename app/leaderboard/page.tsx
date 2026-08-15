@@ -105,6 +105,7 @@ export default function LeaderboardPage() {
   const [claimed, setClaimed] = useState<{ [key: string]: string }>({})
   const [events, setEvents] = useState<Event[]>([])
   const [monthTop, setMonthTop] = useState<Entry[]>([])
+  const [players, setPlayers] = useState<{ name: string; at: string }[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
@@ -177,7 +178,7 @@ export default function LeaderboardPage() {
     ]
       .filter(e => e.name && e.at)
       .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
-      .slice(0, 15)
+      .slice(0, 5)
 
     const now = new Date()
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
@@ -202,6 +203,12 @@ export default function LeaderboardPage() {
 
     setMonthTop(monthSorted)
 
+    const { data: allPlayers } = await supabase
+      .from('players')
+      .select('name, created_at')
+      .order('created_at', { ascending: false })
+
+    setPlayers((allPlayers || []).map((p: any) => ({ name: p.name, at: p.created_at })))
     setEntries(sorted)
     setClaimed(byPattern)
     setEvents(recent)
@@ -413,6 +420,33 @@ export default function LeaderboardPage() {
                     {timeAgo(e.at)} · {PATTERN_POINTS[e.pattern] || WEEKLY_POINTS} punkti
                     </div>
                   </div>
+                ))}
+              </div>
+            )}
+            <h2 style={{
+              fontWeight: 700,
+              fontSize: '20px',
+              color: '#2D2D2D',
+              margin: '32px 0 4px 0'
+            }}>Mängijad</h2>
+            <p style={{ fontSize: '13px', color: '#5B7795', margin: '0 0 12px 0' }}>
+              Registreerunud: {players.length}
+            </p>
+
+            {players.length === 0 ? (
+              <p style={{ fontSize: '14px', color: '#5B7795' }}>Veel keegi pole liitunud.</p>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {players.map((p, i) => (
+                  <span key={i} style={{
+                    display: 'inline-block',
+                    padding: '4px 12px',
+                    background: '#F6FBFF',
+                    border: '1px solid #E7F4FF',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    color: '#2D2D2D'
+                  }}>{p.name}</span>
                 ))}
               </div>
             )}
