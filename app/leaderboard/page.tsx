@@ -244,6 +244,26 @@ export default function LeaderboardPage() {
           </a>
         </div>
 
+        {claimed['Täismäng'] && (
+          <div style={{
+            background: '#E7F4FF',
+            border: '2px solid #0090FF',
+            borderRadius: '8px',
+            padding: '20px',
+            marginBottom: '24px',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              fontSize: '22px',
+              fontWeight: 800,
+              color: '#2D2D2D',
+              letterSpacing: '-0.3px'
+            }}>MÄNG LÄBI</div>
+            <div style={{ fontSize: '15px', color: '#2D2D2D', marginTop: '6px' }}>
+              Täismängu võitis <strong>{claimed['Täismäng']}</strong> — kõik punktid on jagatud.
+            </div>
+          </div>
+        )}
         <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
 
           <div style={{ flex: '1 1 460px', minWidth: '300px' }}>

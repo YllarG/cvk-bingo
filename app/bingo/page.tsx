@@ -78,6 +78,7 @@ export default function BingoPage() {
   const [taken, setTaken] = useState<string[]>([])
   const [weekly, setWeekly] = useState<{ square: number; winner: string | null } | null>(null)
   const [weeklyWins, setWeeklyWins] = useState(0)
+  const [celebrate, setCelebrate] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -288,6 +289,12 @@ export default function BingoPage() {
         .insert([{ player_id: playerId, pattern_type: pattern.name }])
 
       setWins(prev => [...prev, pattern.name])
+
+      if (pattern.name === 'Täismäng') {
+        setCelebrate(true)
+        setTimeout(() => setCelebrate(false), 5000)
+      }
+
       alert(`Võitsid: ${pattern.name} — ${pattern.points} punkti!`)
     }
   }
@@ -634,6 +641,87 @@ export default function BingoPage() {
             </p>
 
           </div>
+          </div>
+      )}
+
+      {celebrate && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          pointerEvents: 'none',
+          overflow: 'hidden',
+          zIndex: 200
+        }}>
+          <style>{`
+            @keyframes cvkfall {
+              0%   { transform: translateY(-10vh) rotate(0deg); opacity: 1 }
+              100% { transform: translateY(110vh) rotate(720deg); opacity: 0 }
+            }
+            @keyframes cvkpop {
+              0%   { transform: scale(0.6); opacity: 0 }
+              15%  { transform: scale(1.08); opacity: 1 }
+              25%  { transform: scale(1); opacity: 1 }
+              80%  { transform: scale(1); opacity: 1 }
+              100% { transform: scale(1.02); opacity: 0 }
+            }
+          `}</style>
+
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            animation: 'cvkpop 5s ease-out forwards'
+          }}>
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '32px 48px',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.12)',
+              textAlign: 'center'
+            }}>
+              <svg viewBox="0 0 149 24" style={{ width: '220px', height: 'auto' }} xmlns="http://www.w3.org/2000/svg">
+                <path d="M33.7404 5.22115L29.0175 18.1194L24.3439 5.22115H20.2737C20.2737 15.579 15.1439 19.9018 10.3368 19.9018C6.89123 19.9018 4.19649 17.6422 4.19649 14.2457C4.19649 11.0317 6.70877 8.81413 9.6 8.81413C11.5368 8.81413 13.2421 9.81062 14.2175 11.3124L16.8561 8.16851C15.1719 6.00711 12.7649 4.7229 9.63509 4.7229C4.32281 4.72992 0 8.66676 0 13.9861C0 19.8106 4.81404 24.0001 10.2526 24.0001C16.379 24.0001 21.1018 19.7896 22.7509 13.1229L27.0456 23.5089H30.9263L38.4562 5.22115H33.7404Z" fill="#0090FF"/>
+                <path d="M51.8947 23.5018H57.5298L49.1719 13.7123L57.186 5.22105H51.6491L44.6456 12.9614V0H40.4772V23.5018H44.6456V18.5053L46.393 16.6526L51.8947 23.5018Z" fill="#2D2D2D"/>
+                <path d="M120.414 23.9999C122.786 23.9999 124.891 22.856 126.042 21.1508V23.5017H130.049V5.22095H125.895V16.028C125.895 18.2174 124.309 20.0771 122.042 20.0771C119.467 20.0771 118.204 18.2245 118.204 16.028V5.22095H114.028V17.0666C114.028 21.1297 116.786 23.9999 120.414 23.9999Z" fill="#2D2D2D"/>
+                <path d="M87.3474 12.6666L83.958 12.049C82.7088 11.8245 81.9229 11.1157 81.9229 10.1473C81.9229 9.03149 83.1439 8.11921 84.9755 8.11921C87.3755 8.11921 88.5825 9.22798 88.8001 10.421H92.9474C92.8141 8.14728 90.786 4.72974 85.1369 4.72974C80.9404 4.72974 77.7053 7.41044 77.7053 10.5824C77.7053 13.0806 79.572 15.1648 83.1439 15.8736L86.4422 16.5332C88.0632 16.828 88.8071 17.5789 88.8071 18.5473C88.8071 19.6631 87.6211 20.5753 85.6281 20.5753C83.2211 20.5753 81.6843 19.4806 81.4036 17.8034H77.158C77.158 20.421 79.6492 24.0069 85.5088 24.0069C90.6597 24.0069 93.1509 20.9473 93.1509 18.1894C93.165 15.5017 91.4387 13.4455 87.3474 12.6666Z" fill="#2D2D2D"/>
+                <path d="M75.2702 16.049C75.3755 15.4596 75.4316 14.849 75.4316 14.2315C75.4316 8.91219 71.4597 4.72974 66.1053 4.72974C60.7509 4.72974 56.772 9.04553 56.772 14.3648C56.772 19.6841 60.7509 23.9999 66.0983 23.9999C69.193 23.9999 71.8316 22.5543 73.5018 20.3017L70.5123 17.6982C69.6702 18.9122 67.7334 19.9087 66.0983 19.9087C63.6141 19.9087 61.6843 18.2876 61.0386 16.049H75.2702ZM61.0457 12.6806C61.6913 10.442 63.6141 8.82096 66.1053 8.82096C68.6386 8.82096 70.5825 10.4139 71.193 12.6806H61.0457Z" fill="#2D2D2D"/>
+                <path d="M107.186 23.5018H112.821L104.456 13.7123L112.477 5.22105H106.94L99.9369 12.9614V0H95.7684V23.5018H99.9369V18.5053L101.684 16.6526L107.186 23.5018Z" fill="#2D2D2D"/>
+                <path d="M142.421 12.6666L139.032 12.049C137.782 11.8245 136.996 11.1157 136.996 10.1473C136.996 9.03149 138.218 8.11921 140.049 8.11921C142.449 8.11921 143.656 9.22798 143.874 10.421H148.021C147.888 8.14728 145.86 4.72974 140.211 4.72974C136.014 4.72974 132.779 7.41044 132.779 10.5824C132.779 13.0806 134.646 15.1648 138.218 15.8736L141.516 16.5332C143.137 16.828 143.881 17.5789 143.881 18.5473C143.881 19.6631 142.695 20.5753 140.702 20.5753C138.295 20.5753 136.758 19.4806 136.477 17.8034H132.232C132.232 20.421 134.723 24.0069 140.582 24.0069C145.733 24.0069 148.225 20.9473 148.225 18.1894C148.239 15.5017 146.512 13.4455 142.421 12.6666Z" fill="#2D2D2D"/>
+              </svg>
+              <div style={{
+                marginTop: '20px',
+                fontSize: '28px',
+                fontWeight: 800,
+                color: '#2D2D2D',
+                letterSpacing: '-0.5px'
+              }}>TÄISMÄNG</div>
+              <div style={{ marginTop: '6px', fontSize: '15px', color: '#5B7795' }}>
+                Kogu kaart täidetud — 30 punkti!
+              </div>
+            </div>
+          </div>
+          {Array.from({ length: 80 }, (_, i) => {
+            const left = Math.random() * 100
+            const delay = Math.random() * 1.5
+            const dur = 2.5 + Math.random() * 2
+            const size = 6 + Math.random() * 8
+            const colors = ['#0090FF', '#5B7795', '#BAC7D5', '#E7F4FF']
+            return (
+              <div key={i} style={{
+                position: 'absolute',
+                top: 0,
+                left: `${left}%`,
+                width: `${size}px`,
+                height: `${size * 1.6}px`,
+                background: colors[i % colors.length],
+                borderRadius: '1px',
+                animation: `cvkfall ${dur}s linear ${delay}s forwards`
+              }} />
+            )
+          })}
         </div>
       )}
     </div>
