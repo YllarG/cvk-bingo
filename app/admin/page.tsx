@@ -54,6 +54,7 @@ export default function AdminPage() {
   const [prizes, setPrizes] = useState<Prizes>(DEFAULT_PRIZES)
   const [draft, setDraft] = useState<Prizes>(DEFAULT_PRIZES)
   const [saving, setSaving] = useState(false)
+  const [showMoney, setShowMoney] = useState(false)
   const [loading, setLoading] = useState(false)
   const supabase = createClient()
 
@@ -268,13 +269,22 @@ export default function AdminPage() {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <h1 style={{ fontSize: '32px', margin: 0, fontWeight: 800, color: '#2D2D2D', letterSpacing: '-0.5px' }}>Admin</h1>
-          <button onClick={load} style={{
-            fontFamily: 'inherit',
-            padding: '8px 16px', background: '#0090FF', color: 'white',
-            border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px'
-          }}>
-            Värskenda
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={() => setShowMoney(!showMoney)} style={{
+              fontFamily: 'inherit',
+              padding: '8px 16px', background: 'white', color: '#0090FF',
+              border: '1px solid #0090FF', borderRadius: '6px', cursor: 'pointer', fontSize: '14px'
+            }}>
+              {showMoney ? 'Peida auhinnad' : 'Näita auhindu'}
+            </button>
+            <button onClick={load} style={{
+              fontFamily: 'inherit',
+              padding: '8px 16px', background: '#0090FF', color: 'white',
+              border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px'
+            }}>
+              Värskenda
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', flexWrap: 'wrap' }}>
@@ -286,12 +296,15 @@ export default function AdminPage() {
             <div style={{ fontSize: '28px', fontWeight: 700, color: '#0090FF' }}>{claimed.length} / 15</div>
             <div style={{ fontSize: '13px', color: '#5B7795' }}>Mustrit võidetud</div>
           </div>
-          <div style={{ flex: '1 1 160px', padding: '16px', background: '#F6FBFF', border: '1px solid #BAC7D5', borderRadius: '8px' }}>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#2D2D2D' }}>{monthTotal + specialTotal} €</div>
-            <div style={{ fontSize: '13px', color: '#5B7795' }}>Auhindu välja teenitud</div>
-          </div>
+          {showMoney && (
+            <div style={{ flex: '1 1 160px', padding: '16px', background: '#E7F4FF', borderRadius: '8px' }}>
+              <div style={{ fontSize: '28px', fontWeight: 700, color: '#0090FF' }}>{monthTotal + specialTotal} €</div>
+              <div style={{ fontSize: '13px', color: '#5B7795' }}>Auhindu välja teenitud</div>
+            </div>
+          )}
         </div>
 
+        {showMoney && (<>
         <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#2D2D2D', marginBottom: '12px' }}>
           Auhinnasummad
         </h2>
@@ -336,6 +349,7 @@ export default function AdminPage() {
             {saving ? 'Salvestan...' : 'Salvesta summad'}
           </button>
         </div>
+        </>)}
 
         <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#2D2D2D', marginBottom: '12px' }}>
           Auhinnad kuude kaupa
@@ -358,11 +372,13 @@ export default function AdminPage() {
                     ? 'KÄIB'
                     : 'LÕPPENUD'}
                 </span>
-                <span style={{ fontSize: '13px', color: '#5B7795', marginLeft: 'auto' }}>
-                  Väljamakse: <strong style={{ color: '#2D2D2D' }}>
-                    {m.top.reduce((s, t) => s + t.prize, 0)} €
-                  </strong>
-                </span>
+                {showMoney && (
+                  <span style={{ fontSize: '13px', color: '#5B7795', marginLeft: 'auto' }}>
+                    Väljamakse: <strong style={{ color: '#2D2D2D' }}>
+                      {m.top.reduce((s, t) => s + t.prize, 0)} €
+                    </strong>
+                  </span>
+                )}
               </div>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', color: '#2D2D2D' }}>
                 <thead>
@@ -370,7 +386,7 @@ export default function AdminPage() {
                     <th style={{ ...th, width: '60px' }}>Koht</th>
                     <th style={th}>Mängija</th>
                     <th style={{ ...th, textAlign: 'center' }}>Punkte</th>
-                    <th style={{ ...th, textAlign: 'right' }}>Auhind</th>
+                    {showMoney && <th style={{ ...th, textAlign: 'right' }}>Auhind</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -379,7 +395,7 @@ export default function AdminPage() {
                       <td style={{ padding: '8px' }}>{i + 1}.</td>
                       <td style={{ padding: '8px' }}>{t.name}</td>
                       <td style={{ padding: '8px', textAlign: 'center' }}>{t.points}</td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, color: '#0090FF' }}>{t.prize} €</td>
+                      {showMoney && <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, color: '#0090FF' }}>{t.prize} €</td>}
                     </tr>
                   ))}
                 </tbody>
@@ -400,7 +416,7 @@ export default function AdminPage() {
               <tr style={{ background: '#E7F4FF' }}>
                 <th style={th}>Muster</th>
                 <th style={th}>Võitja</th>
-                <th style={{ ...th, textAlign: 'right' }}>Auhind</th>
+                {showMoney && <th style={{ ...th, textAlign: 'right' }}>Auhind</th>}
               </tr>
             </thead>
             <tbody>
@@ -408,7 +424,7 @@ export default function AdminPage() {
                 <tr key={i} style={{ borderBottom: '1px solid #E7F4FF' }}>
                   <td style={{ padding: '8px' }}>{s.label}</td>
                   <td style={{ padding: '8px' }}>{s.name}</td>
-                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, color: '#0090FF' }}>{s.prize} €</td>
+                  {showMoney && <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, color: '#0090FF' }}>{s.prize} €</td>}
                 </tr>
               ))}
             </tbody>
