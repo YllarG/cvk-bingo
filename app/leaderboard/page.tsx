@@ -128,7 +128,7 @@ export default function LeaderboardPage() {
 
       const { data: weeklyData } = await supabase
       .from('weekly_square')
-      .select('players:winner_player_id(name)')
+      .select('won_at, players:winner_player_id(name)')
       .not('winner_player_id', 'is', null)
 
     const weeklyByName: { [key: string]: number } = {}
@@ -194,6 +194,17 @@ export default function LeaderboardPage() {
       byMonth[name].points += PATTERN_POINTS[w.pattern_type] || 0
     })
 
+    weeklyData?.forEach((w: any) => {
+      if (!w.won_at) return
+      if (new Date(w.won_at).getTime() < monthStart) return
+      const name = w.players?.name
+      if (!name) return
+      if (!byMonth[name]) {
+        byMonth[name] = { name, patterns: [], points: 0, firstWin: w.won_at, weekly: 0 }
+      }
+      byMonth[name].points += WEEKLY_POINTS
+      byMonth[name].weekly += 1
+    })
     const monthSorted = Object.values(byMonth)
       .sort((a, b) => {
         if (b.points !== a.points) return b.points - a.points
