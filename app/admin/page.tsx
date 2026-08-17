@@ -348,6 +348,32 @@ export default function AdminPage() {
           >
             {saving ? 'Salvestan...' : 'Salvesta summad'}
           </button>
+          <div style={{
+            marginTop: '16px',
+            paddingTop: '16px',
+            borderTop: '1px solid #BAC7D5',
+            display: 'flex',
+            gap: '32px',
+            flexWrap: 'wrap',
+            fontSize: '14px',
+            color: '#2D2D2D'
+          }}>
+            <div>
+              <div style={{ fontSize: '13px', color: '#5B7795' }}>Eelarve maksimum</div>
+              <div style={{ fontSize: '22px', fontWeight: 700, color: '#2D2D2D' }}>
+                {(draft.prize_month_1 + draft.prize_month_2 + draft.prize_month_3) * 5
+                  + draft.prize_full + draft.prize_secret} €
+              </div>
+              <div style={{ fontSize: '12px', color: '#5B7795' }}>5 kuud + eriauhinnad</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '13px', color: '#5B7795' }}>Hetkeseis</div>
+              <div style={{ fontSize: '22px', fontWeight: 700, color: '#0090FF' }}>
+                {monthTotal + specialTotal} €
+              </div>
+              <div style={{ fontSize: '12px', color: '#5B7795' }}>välja teenitud</div>
+            </div>
+          </div>
         </div>
         </>)}
 
