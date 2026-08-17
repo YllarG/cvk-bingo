@@ -79,6 +79,7 @@ export default function BingoPage() {
   const [weekly, setWeekly] = useState<{ square: number; winner: string | null } | null>(null)
   const [weeklyWins, setWeeklyWins] = useState(0)
   const [celebrate, setCelebrate] = useState(false)
+  const [toast, setToast] = useState<{ title: string; text: string } | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -129,7 +130,10 @@ export default function BingoPage() {
     if (check?.winner_player_id === playerId) {
       setWeekly({ square: idx, winner: playerName })
       setWeeklyWins(prev => prev + 1)
-      alert(`Nädala ruut! ${WEEKLY_POINTS} boonuspunkti.`)
+      setToast({
+        title: 'Nädala ruut!',
+        text: `${WEEKLY_POINTS} boonuspunkti`
+      })
     }
   }
   const loadWeekly = async (pid?: string) => {
@@ -266,7 +270,10 @@ export default function BingoPage() {
 
     if (lost.length > 0) {
       setWins(prev => prev.filter(w => !lost.includes(w)))
-      alert(`Muster enam täidetud ei ole: ${lost.join(', ')}. Võit võeti tagasi.`)
+      setToast({
+        title: 'Võit võeti tagasi',
+        text: `${lost.join(', ')} — muster ei ole enam täidetud`
+      })
     }
   }
 
@@ -295,7 +302,10 @@ export default function BingoPage() {
         setTimeout(() => setCelebrate(false), 5000)
       }
 
-      alert(`Võitsid: ${pattern.name} — ${pattern.points} punkti!`)
+      setToast({
+        title: 'Võitsid mustri!',
+        text: `${pattern.name} — ${pattern.points} punkti`
+      })
     }
   }
 
@@ -646,6 +656,42 @@ export default function BingoPage() {
           </div>
       )}
 
+{toast && (
+        <div
+          onClick={() => setToast(null)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '20px', zIndex: 150
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'white', borderRadius: '12px', padding: '32px',
+              maxWidth: '400px', width: '100%', textAlign: 'center'
+            }}
+          >
+            <div style={{
+              fontSize: '24px', fontWeight: 800, color: '#2D2D2D', letterSpacing: '-0.3px'
+            }}>{toast.title}</div>
+            <div style={{
+              fontSize: '16px', color: '#5B7795', marginTop: '8px', lineHeight: 1.5
+            }}>{toast.text}</div>
+            <button
+              onClick={() => setToast(null)}
+              style={{
+                fontFamily: 'inherit',
+                marginTop: '24px', padding: '10px 32px', background: '#0090FF',
+                color: 'white', border: 'none', borderRadius: '8px',
+                fontSize: '15px', fontWeight: 600, cursor: 'pointer'
+              }}
+            >
+              Sulge
+            </button>
+          </div>
+        </div>
+      )}
       {celebrate && (
         <div style={{
           position: 'fixed',
