@@ -201,6 +201,19 @@ export default function BingoPage() {
     setCounts(tally)
   }
   const loadData = async (cid: string, pid: string) => {
+    // Kontrolli, kas kaart on andmebaasis alles
+    const { data: cardCheck } = await supabase
+      .from('cards')
+      .select('id')
+      .eq('id', cid)
+      .maybeSingle()
+
+    if (!cardCheck) {
+      localStorage.clear()
+      router.push('/player')
+      return
+    }
+
     const { data: markedData } = await supabase
       .from('marked_squares')
       .select('square_number')
