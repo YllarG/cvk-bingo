@@ -232,7 +232,8 @@ export default function BingoPage() {
         .eq('card_id', cardId)
         .eq('square_number', idx)
 
-      await releaseWins(newMarked)
+        await releaseWeekly(idx)
+        await releaseWins(newMarked)
     } else {
       newMarked.add(idx)
       await supabase
@@ -246,6 +247,25 @@ export default function BingoPage() {
     setMarked(newMarked)
   }
 
+  const releaseWeekly = async (idx: number) => {
+    if (!weekly || weekly.square !== idx) return
+    if (weekly.winner !== playerName) return
+
+    const week = mondayOf(new Date())
+
+    await supabase
+      .from('weekly_square')
+      .update({ winner_player_id: null, won_at: null })
+      .eq('week_start', week)
+      .eq('winner_player_id', playerId)
+
+    setWeekly({ square: idx, winner: null })
+    setWeeklyWins(prev => Math.max(0, prev - 1))
+    setToast({
+      title: 'Nädala ruut vabastatud',
+      text: `${WEEKLY_POINTS} boonuspunkti võeti tagasi`
+    })
+  }
   const releaseWins = async (markedSet: Set<number>) => {
     const lost: string[] = []
 
