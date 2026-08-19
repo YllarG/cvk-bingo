@@ -496,9 +496,7 @@ export default function LeaderboardPage() {
                     borderRadius: '12px',
                     fontSize: '13px',
                     color: '#2D2D2D'
-                  }}>
-                  {p.name} <span style={{ color: '#0090FF', fontWeight: 700 }}>({p.marked})</span>
-                </span>
+                  }}>{p.name} ({p.marked})</span>
                 ))}
               </div>
             )}
