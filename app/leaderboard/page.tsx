@@ -105,7 +105,7 @@ export default function LeaderboardPage() {
   const [claimed, setClaimed] = useState<{ [key: string]: string }>({})
   const [events, setEvents] = useState<Event[]>([])
   const [monthTop, setMonthTop] = useState<Entry[]>([])
-  const [players, setPlayers] = useState<{ name: string; at: string }[]>([])
+  const [players, setPlayers] = useState<{ name: string; at: string; marked: number }[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
@@ -215,11 +215,30 @@ export default function LeaderboardPage() {
     setMonthTop(monthSorted)
 
     const { data: allPlayers } = await supabase
-      .from('players')
-      .select('name, created_at')
-      .order('created_at', { ascending: false })
+    .from('players')
+    .select('id, name, created_at')
 
-    setPlayers((allPlayers || []).map((p: any) => ({ name: p.name, at: p.created_at })))
+  const { data: allCards } = await supabase.from('cards').select('id, player_id')
+  const { data: allMarked } = await supabase.from('marked_squares').select('card_id')
+
+  const cardToPlayer: { [k: string]: string } = {}
+  allCards?.forEach((c: any) => { cardToPlayer[c.id] = c.player_id })
+
+  const markCount: { [k: string]: number } = {}
+  allMarked?.forEach((m: any) => {
+    const pid = cardToPlayer[m.card_id]
+    if (pid) markCount[pid] = (markCount[pid] || 0) + 1
+  })
+
+  setPlayers(
+    (allPlayers || [])
+      .map((p: any) => ({
+        name: p.name,
+        at: p.created_at,
+        marked: markCount[p.id] || 0
+      }))
+      .sort((a, b) => b.marked - a.marked)
+  )
     setEntries(sorted)
     setClaimed(byPattern)
     setEvents(recent)
@@ -477,7 +496,9 @@ export default function LeaderboardPage() {
                     borderRadius: '12px',
                     fontSize: '13px',
                     color: '#2D2D2D'
-                  }}>{p.name}</span>
+                  }}>
+                  {p.name} <span style={{ color: '#0090FF', fontWeight: 700 }}>({p.marked})</span>
+                </span>
                 ))}
               </div>
             )}
